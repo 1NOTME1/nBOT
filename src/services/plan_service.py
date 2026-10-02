@@ -19,3 +19,17 @@ def create_plan_item(trip_id, title, date, time):
         date=date.strip(),
         time=time.strip()
     )
+
+def remove_plan_item(plan_items, plan_item_id):
+    if not isinstance(plan_items, list):
+        raise ValueError("Invalid plan_items")
+
+    if not isinstance(plan_item_id, int) or isinstance(plan_item_id, bool) or plan_item_id < 1:
+        raise ValueError("Invalid plan_item_id")
+
+    for item in plan_items:
+        if item.id == plan_item_id:
+            plan_items.remove(item)
+            return plan_items
+
+    raise ValueError("Plan item not found")
