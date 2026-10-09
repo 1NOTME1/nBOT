@@ -1,9 +1,9 @@
 from src.domain.trip_idea import TripIdea
+from src.services.plan_service import create_plan_item
 from src.validators.common import (
     validate_positive_int,
     validate_non_empty_string,
 )
-from src.services.plan_service import create_plan_item
 
 
 def create_trip_idea(
@@ -121,8 +121,6 @@ def get_trip_ideas_by_city(trip_ideas, trip_id, city):
 
     return trip_ideas_list
 
-
-
 def add_trip_idea_to_plan(
     trip_ideas,
     idea_id,
@@ -141,3 +139,46 @@ def add_trip_idea_to_plan(
             idea.status = "selected"
             return plan_item
     raise ValueError("Trip idea not found")
+
+def vote_for_trip_idea(trip_ideas, idea_id, user_id):
+    if not isinstance(trip_ideas, list):
+        raise ValueError("Invalid data")
+
+    validated_idea_id = validate_positive_int(idea_id)
+    validated_user_id = validate_positive_int(user_id)
+
+    for idea in trip_ideas:
+        if idea.id == validated_idea_id:
+            if validated_user_id not in idea.voter_ids:
+                idea.voter_ids.add(validated_user_id)
+                return idea
+            raise ValueError("User has already voted")
+    raise ValueError("Trip idea not found")
+
+def remove_trip_idea_vote(trip_ideas, idea_id, user_id):
+    if not isinstance(trip_ideas, list):
+        raise ValueError("Invalid data")
+
+    validated_idea_id = validate_positive_int(idea_id)
+    validated_user_id = validate_positive_int(user_id)
+
+    for idea in trip_ideas:
+        if idea.id == validated_idea_id:
+            if validated_user_id not in idea.voter_ids:
+                raise ValueError("User has not voted")
+            else:
+                idea.voter_ids.remove(validated_user_id)
+                return idea
+    raise ValueError("Trip idea not found")
+
+def get_top_trip_ideas(trip_ideas, trip_id):
+    if not isinstance(trip_ideas, list):
+        raise ValueError("Invalid data")
+
+    validated_trip_id = validate_positive_int(trip_id)
+    trip_ideas_list = []
+    for idea in trip_ideas:
+        if idea.trip_id == validated_trip_id:
+            trip_ideas_list.append(idea)
+
+    return sorted(trip_ideas_list, key=lambda idea : len(idea.voter_ids), reverse=True)

@@ -20,3 +20,4 @@ class TripIdea:
         self.notes = notes
         self.status = status
         self.url = url
+        self.voter_ids = set()
